@@ -262,7 +262,7 @@ OsuLifeEventArray	OsuReplay_parseLifeBarEvents(char *buffer, char *err_buff, jmp
 		longjmp(jump_buffer, true);
 	}
 	for (int i = 0; numberArray[i]; i++) {
-		events.content[i].timeToHappen = DELNEG(atol(numberArray[i][0]) - events.content[i - 1].timeToHappen);
+		events.content[i].timeToHappen = atol(numberArray[i][0]);
 		events.content[i].newValue = atof(numberArray[i][1]);
 		free(numberArray[i]);
 	}
