@@ -32,12 +32,12 @@ unsigned char 	*OsuReplay_getRawData(const unsigned char *buffer, size_t buffSiz
 
 	if (*currentPos + size > buffSize) {
 		*currentPos = buffSize;
-		sprintf(err_buff, "Unexpected end of file\n");
+		sprintf(err_buff, "Unexpected end of file");
 		longjmp(jump_buffer, true);
 	}
 	data = malloc(size + 1);
 	if (!data) {
-		sprintf(err_buff, "Memory allocation error (%luB)\n", (unsigned long)size);
+		sprintf(err_buff, "Memory allocation error (%luB)", (unsigned long)size);
 		longjmp(jump_buffer, true);
 	}
 	memcpy(data, &buffer[*currentPos], size);
@@ -52,7 +52,7 @@ unsigned long	OsuReplay_getLongInteger(const unsigned char *buffer, size_t buffS
 
 	for (int i = 0; i < 8; i++) {
 		if (buffSize == *currentPos) {
-			sprintf(err_buff, "Unexpected end of file\n");
+			sprintf(err_buff, "Unexpected end of file");
 			longjmp(jump_buffer, true);
 		}
 		data += (unsigned long)buffer[*currentPos] << (i * 8);
@@ -69,10 +69,10 @@ unsigned int	OsuReplay_getVarLenInt(const unsigned char *buffer, size_t buffSize
 
 	do {
 		if (count == 4) {
-			sprintf(err_buff, "Variable length int is longer than 4 bytes\n");
+			sprintf(err_buff, "Variable length int is longer than 4 bytes");
 			longjmp(jump_buffer, true);
 		} else if (*currentPos == buffSize) {
-			sprintf(err_buff, "Unexpected end of file\n");
+			sprintf(err_buff, "Unexpected end of file");
 			longjmp(jump_buffer, true);
 		}
 		buff = buffer[*currentPos];
@@ -87,7 +87,7 @@ unsigned char	OsuReplay_getByte(const unsigned char *buffer, size_t buffSize, si
 	unsigned char	data = 0;
 
 	if (buffSize == *currentPos) {
-		sprintf(err_buff, "Unexpected end of file\n");
+		sprintf(err_buff, "Unexpected end of file");
 		longjmp(jump_buffer, true);
 	}
 	data = buffer[*currentPos];
@@ -104,7 +104,7 @@ char 		*OsuReplay_getString(const unsigned char *buffer, size_t buffSize, size_t
 		return NULL;
 	else if (byte != 11) {
 		(*currentPos)--;
-		sprintf(err_buff, "An invalid byte was found\n");
+		sprintf(err_buff, "An invalid byte was found");
 		longjmp(jump_buffer, true);
 	}
 	length = OsuReplay_getVarLenInt(buffer, buffSize, currentPos, err_buff, jump_buffer);
@@ -117,7 +117,7 @@ unsigned int	OsuReplay_getInteger(const unsigned char *buffer, size_t buffSize, 
 
 	for (int i = 0; i < 4; i++) {
 		if (buffSize == *currentPos) {
-			sprintf(err_buff, "Unexpected end of file\n");
+			sprintf(err_buff, "Unexpected end of file");
 			longjmp(jump_buffer, true);
 		}
 		data += buffer[*currentPos] << (i * 8);
@@ -132,7 +132,7 @@ unsigned short	OsuReplay_getShort(const unsigned char *buffer, size_t buffSize, 
 
 	for (int i = 0; i < 2; i++) {
 		if (buffSize == *currentPos) {
-			sprintf(err_buff, "Unexpected end of file\n");
+			sprintf(err_buff, "Unexpected end of file");
 			longjmp(jump_buffer, true);
 		}
 		data += buffer[*currentPos] << (i * 8);
@@ -201,14 +201,14 @@ OsuLifeEventArray	OsuReplay_parseLifeBarEvents(char *buffer, char *err_buff, jmp
 	char			***numberArray;
 
 	if (!eventArray) {
-		sprintf(err_buff, "Memory allocation error\n");
+		sprintf(err_buff, "Memory allocation error");
 		longjmp(jump_buffer, true);
 	}
 
 	events.length = OsuReplay_getPointerArraySize((void **)eventArray);
 	numberArray = malloc(events.length * sizeof(*numberArray));
 	if (!numberArray) {
-		sprintf(err_buff, "Memory allocation error (%luB)\n", (unsigned long)(events.length * sizeof(*numberArray)));
+		sprintf(err_buff, "Memory allocation error (%luB)", (unsigned long)(events.length * sizeof(*numberArray)));
 		longjmp(jump_buffer, true);
 	}
 
@@ -220,7 +220,7 @@ OsuLifeEventArray	OsuReplay_parseLifeBarEvents(char *buffer, char *err_buff, jmp
 		if (OsuReplay_getPointerArraySize((void **)numberArray[i]) != 2) {
 			sprintf(
 				err_buff,
-				"Lifebar events array is invalid. Expected 2 elements but %lu were given\n",
+				"Lifebar events array is invalid. Expected 2 elements but %lu were given",
 				(unsigned long)OsuReplay_getPointerArraySize((void **)numberArray[i])
 			);
 			for (int j = 0; j < i; i++)
@@ -229,21 +229,21 @@ OsuLifeEventArray	OsuReplay_parseLifeBarEvents(char *buffer, char *err_buff, jmp
 			free(eventArray);
 			longjmp(jump_buffer, true);
 		} else if (!OsuReplay_isInt(numberArray[i][0])) {
-			sprintf(err_buff, "Invalid integer '%s'\n", numberArray[i][0]);
+			sprintf(err_buff, "Invalid integer '%s'", numberArray[i][0]);
 			for (int j = 0; j < i; i++)
 				free(numberArray[i]);
 			free(numberArray);
 			free(eventArray);
 			longjmp(jump_buffer, true);
 		} else if (!OsuReplay_isFloat(numberArray[i][1])) {
-			sprintf(err_buff, "Invalid floating number '%s'\n", numberArray[i][1]);
+			sprintf(err_buff, "Invalid floating number '%s'", numberArray[i][1]);
 			for (int j = 0; j < i; i++)
 				free(numberArray[i]);
 			free(numberArray);
 			free(eventArray);
 			longjmp(jump_buffer, true);
 		} else if (atof(numberArray[i][1]) > 1 || atof(numberArray[i][1]) < 0) {
-			sprintf(err_buff, "Invalid life value '%s' is not in range 0-1\n", numberArray[i][1]);
+			sprintf(err_buff, "Invalid life value '%s' is not in range 0-1", numberArray[i][1]);
 			for (int j = 0; j < i; i++)
 				free(numberArray[i]);
 			free(numberArray);
@@ -254,7 +254,7 @@ OsuLifeEventArray	OsuReplay_parseLifeBarEvents(char *buffer, char *err_buff, jmp
 
 	events.content = malloc(events.length * sizeof(*events.content));
 	if (!events.content) {
-		sprintf(err_buff, "Memory allocation error (%luB)\n", (unsigned long)(events.length * sizeof(*events.content)));
+		sprintf(err_buff, "Memory allocation error (%luB)", (unsigned long)(events.length * sizeof(*events.content)));
 		for (int i = 0; numberArray[i]; i++)
 			free(numberArray[i]);
 		free(numberArray);
@@ -262,7 +262,7 @@ OsuLifeEventArray	OsuReplay_parseLifeBarEvents(char *buffer, char *err_buff, jmp
 		longjmp(jump_buffer, true);
 	}
 	for (int i = 0; numberArray[i]; i++) {
-		events.content[i].timeToHappen = DELNEG(atol(numberArray[i][0]) - events.content[i - 1].timeToHappen);
+		events.content[i].timeToHappen = atol(numberArray[i][0]);
 		events.content[i].newValue = atof(numberArray[i][1]);
 		free(numberArray[i]);
 	}
@@ -278,14 +278,14 @@ OsuGameEventArray	OsuReplay_parseGameEvents(char *buffer, char *err_buff, jmp_bu
 	char			***numberArray;
 
 	if (!eventArray) {
-		sprintf(err_buff, "Memory allocation error\n");
+		sprintf(err_buff, "Memory allocation error");
 		longjmp(jump_buffer, true);
 	}
 
 	events.length = OsuReplay_getPointerArraySize((void **)eventArray);
 	numberArray = malloc(events.length * sizeof(*numberArray));
 	if (!numberArray) {
-		sprintf(err_buff, "Memory allocation error (%luB)\n", (unsigned long)(events.length * sizeof(*numberArray)));
+		sprintf(err_buff, "Memory allocation error (%luB)", (unsigned long)(events.length * sizeof(*numberArray)));
 		longjmp(jump_buffer, true);
 	}
 
@@ -297,33 +297,33 @@ OsuGameEventArray	OsuReplay_parseGameEvents(char *buffer, char *err_buff, jmp_bu
 		if (OsuReplay_getPointerArraySize((void **)numberArray[i]) != 4) {
 			sprintf(
 				err_buff,
-				"Game events array is invalid. Expected 4 elements but %lu were given\n",
+				"Game events array is invalid. Expected 4 elements but %lu were given",
 				(unsigned long)OsuReplay_getPointerArraySize((void **)numberArray[i])
 			);
 			longjmp(jump_buffer, true);
 		} else if (!OsuReplay_isInt(numberArray[i][0])) {
-			sprintf(err_buff, "Invalid integer '%s'\n", numberArray[i][0]);
+			sprintf(err_buff, "Invalid integer '%s'", numberArray[i][0]);
 			for (int j = 0; j < i; i++)
 				free(numberArray[i]);
 			free(numberArray);
 			free(eventArray);
 			longjmp(jump_buffer, true);
 		} else if (!OsuReplay_isFloat(numberArray[i][1])) {
-			sprintf(err_buff, "Invalid floating number '%s'\n", numberArray[i][1]);
+			sprintf(err_buff, "Invalid floating number '%s'", numberArray[i][1]);
 			for (int j = 0; j < i; i++)
 				free(numberArray[i]);
 			free(numberArray);
 			free(eventArray);
 			longjmp(jump_buffer, true);
 		} else if (!OsuReplay_isFloat(numberArray[i][2])) {
-			sprintf(err_buff, "Invalid floating number '%s'\n", numberArray[i][2]);
+			sprintf(err_buff, "Invalid floating number '%s'", numberArray[i][2]);
 			for (int j = 0; j < i; i++)
 				free(numberArray[i]);
 			free(numberArray);
 			free(eventArray);
 			longjmp(jump_buffer, true);
 		} else if (!OsuReplay_isInt(numberArray[i][3])) {
-			sprintf(err_buff, "Invalid integer '%s'\n", numberArray[i][3]);
+			sprintf(err_buff, "Invalid integer '%s'", numberArray[i][3]);
 			for (int j = 0; j < i; i++)
 				free(numberArray[i]);
 			free(numberArray);
@@ -334,7 +334,7 @@ OsuGameEventArray	OsuReplay_parseGameEvents(char *buffer, char *err_buff, jmp_bu
 
 	events.content = malloc(events.length * sizeof(*events.content));
 	if (!events.content) {
-		sprintf(err_buff, "Memory allocation error (%luB)\n", (unsigned long)(events.length * sizeof(*events.content)));
+		sprintf(err_buff, "Memory allocation error (%luB)", (unsigned long)(events.length * sizeof(*events.content)));
 		for (int i = 0; numberArray[i]; i++)
 			free(numberArray[i]);
 		free(numberArray);
@@ -367,7 +367,7 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 	//Init the error handler
 	if (setjmp(jump_buffer)) {
 		strcpy(buffer, error);
-		sprintf(error, "An error occurred when parsing string:\nCharacter %lu: %s\n", (unsigned long)currentPos, buffer);
+		sprintf(error, "An error occurred when parsing string:\nCharacter %lu: %s", (unsigned long)currentPos, buffer);
 		result.error = error;
 		free(compressedReplayData.content);
 		free(uncompressedReplayData.content);
@@ -379,7 +379,7 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 	memset(&result, 0, sizeof(result));
 	result.mode = OsuReplay_getByte(string, buffSize, &currentPos, error, jump_buffer);
 	if (result.mode > 3) {
-		sprintf(error, "Invalid game mode found (%i)\n", result.mode);
+		sprintf(error, "Invalid game mode found (%i)", result.mode);
 		longjmp(jump_buffer, true);
 	}
 	result.version = OsuReplay_getInteger(string, buffSize, &currentPos, error, jump_buffer);
@@ -402,7 +402,7 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 	compressedReplayData.content = OsuReplay_getRawData(string, buffSize, compressedReplayData.length, &currentPos, error, jump_buffer);
 	result.something = OsuReplay_getLongInteger(string, buffSize, &currentPos, error, jump_buffer);
 	if (buffSize != currentPos) {
-		sprintf(error, "Invalid data remaining at the end of the file\n");
+		sprintf(error, "Invalid data remaining at the end of the file");
 		longjmp(jump_buffer, true);
 	}
 
@@ -413,7 +413,7 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 		uncompressedReplayData.length += (size_t)compressedReplayData.content[LZMA_PROPS_SIZE + i] << (i * 8);
 	uncompressedReplayData.content = malloc(uncompressedReplayData.length);
 	if (!uncompressedReplayData.content) {
-		sprintf(error, "Memory allocation error (%luB)\n", (unsigned long)uncompressedReplayData.length);
+		sprintf(error, "Memory allocation error (%luB)", (unsigned long)uncompressedReplayData.length);
 		longjmp(jump_buffer, true);
 	}
 	memset(uncompressedReplayData.content, 0, uncompressedReplayData.length);
@@ -428,16 +428,16 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 
 	//Handle uncompression errors
 	if (LZMA_result == SZ_ERROR_DATA) {
-		sprintf(error, "A data error occurred when uncompressing replay data (Byte %lu in compressed data)\n", (unsigned long)posInCompressedBuffer);
+		sprintf(error, "A data error occurred when uncompressing replay data (Byte %lu in compressed data)", (unsigned long)posInCompressedBuffer);
 		longjmp(jump_buffer, true);
 	} else if (LZMA_result == SZ_ERROR_MEM) {
-		sprintf(error, "A memory allocation error occurred when uncompressing replay data (Byte %lu in compressed data)\n", (unsigned long)posInCompressedBuffer);
+		sprintf(error, "A memory allocation error occurred when uncompressing replay data (Byte %lu in compressed data)", (unsigned long)posInCompressedBuffer);
 		longjmp(jump_buffer, true);
 	} else if (LZMA_result == SZ_ERROR_UNSUPPORTED) {
-		sprintf(error, "The compressed replay data are invalid (Byte %lu in compressed data)\n", (unsigned long)posInCompressedBuffer);
+		sprintf(error, "The compressed replay data are invalid (Byte %lu in compressed data)", (unsigned long)posInCompressedBuffer);
 		longjmp(jump_buffer, true);
 	} else if (LZMA_result == SZ_ERROR_INPUT_EOF) {
-		sprintf(error, "Unexpected end of file when uncompressing replay data (Byte %lu in compressed data)\n", (unsigned long)posInCompressedBuffer);
+		sprintf(error, "Unexpected end of file when uncompressing replay data (Byte %lu in compressed data)", (unsigned long)posInCompressedBuffer);
 		longjmp(jump_buffer, true);
 	}
 
@@ -465,7 +465,7 @@ OsuReplay	OsuReplay_parseReplayFile(char *path)
 	//Open file
 	stream = fopen(path, "rb");
 	if (!stream) {
-		sprintf(error, "%s: %s\n", path, strerror(errno));
+		sprintf(error, "%s: %s", path, strerror(errno));
 		result.error = error;
 		return result;
 	}
@@ -473,7 +473,7 @@ OsuReplay	OsuReplay_parseReplayFile(char *path)
 	//Create buffer
 	memset(&result, 0, sizeof(result));
 	if (stat(path, &stats) < 0) {
-		sprintf(error, "%s: %s\n", path, strerror(errno));
+		sprintf(error, "%s: %s", path, strerror(errno));
 		result.error = error;
 		return result;
 	}
@@ -481,7 +481,7 @@ OsuReplay	OsuReplay_parseReplayFile(char *path)
 	size = stats.st_size;
 	buffer = malloc(size);
 	if (!buffer) {
-		sprintf(error, "%s: Memory allocation error (%luB)\n", path, (long unsigned)size);
+		sprintf(error, "%s: Memory allocation error (%luB)", path, (long unsigned)size);
 		result.error = error;
 		return result;
 	}
@@ -490,7 +490,7 @@ OsuReplay	OsuReplay_parseReplayFile(char *path)
 	fd = fileno(stream);
 	readSize = read(fd, buffer, size);
 	if (readSize < 0) {
-		sprintf(error, "%s: %s\n", path, strerror(errno));
+		sprintf(error, "%s: %s", path, strerror(errno));
 		result.error = error;
 		return result;
 	}
@@ -499,7 +499,7 @@ OsuReplay	OsuReplay_parseReplayFile(char *path)
 	//Parse content
 	result = OsuReplay_parseReplayString(buffer, readSize);
 	if (result.error) {
-		sprintf(error, "An error occured when parsing %s:\n%s\n", path, result.error);
+		sprintf(error, "An error occured when parsing %s:\n%s", path, result.error);
 		result.error = error;
 		return result;
 	}
