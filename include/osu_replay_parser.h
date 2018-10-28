@@ -6,6 +6,9 @@
 
 #define DELNEG(x) (x > 0 ? x : 0)
 
+#ifndef __OSU_GAME_MODE_HEADER_
+#define __OSU_GAME_MODE_HEADER_
+
 enum OsuGameMode {
 	GAME_OSU_STANDARD,
 	GAME_TAIKO,
@@ -15,6 +18,8 @@ enum OsuGameMode {
 	GAME_CTB	= GAME_CATCH_THE_BEAT,
 	GAME_MANIA	= GAME_OSU_MANIA,
 };
+
+#endif
 
 enum OsuInputs {
 	INPUT_NONE	= 0,
