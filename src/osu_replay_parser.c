@@ -95,7 +95,7 @@ unsigned char	OsuReplay_getByte(const unsigned char *buffer, size_t buffSize, si
 	return data;
 }
 
-char 		*OsuReplay_getString(const unsigned char *buffer, size_t buffSize, size_t *currentPos, char *err_buff, jmp_buf jump_buffer)
+char 	*OsuReplay_getString(const unsigned char *buffer, size_t buffSize, size_t *currentPos, char *err_buff, jmp_buf jump_buffer)
 {
 	unsigned char	byte = OsuReplay_getByte(buffer, buffSize, currentPos, err_buff, jump_buffer);
 	unsigned int	length;
@@ -104,7 +104,7 @@ char 		*OsuReplay_getString(const unsigned char *buffer, size_t buffSize, size_t
 		return NULL;
 	else if (byte != 11) {
 		(*currentPos)--;
-		sprintf(err_buff, "An invalid byte was found");
+		sprintf(err_buff, "An invalid byte was found (0 or 11 expected but %i found)", byte);
 		longjmp(jump_buffer, true);
 	}
 	length = OsuReplay_getVarLenInt(buffer, buffSize, currentPos, err_buff, jump_buffer);
