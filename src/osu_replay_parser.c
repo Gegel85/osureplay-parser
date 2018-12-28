@@ -214,8 +214,10 @@ OsuLifeEventArray	OsuReplay_parseLifeBarEvents(char *buffer, char *err_buff, jmp
 
 	memset(numberArray, 0, events.length * sizeof(*numberArray));
 	for (int i = 0; eventArray[i]; i++) {
-		if (!eventArray[i + 1] && !strlen(eventArray[i]))
+		if (!eventArray[i + 1] && !strlen(eventArray[i])) {
+			events.length--;
 			break;
+		}
 		numberArray[i] = OsuReplay_splitString(eventArray[i], '|');
 		if (OsuReplay_getPointerArraySize((void **)numberArray[i]) != 2) {
 			sprintf(
@@ -291,8 +293,10 @@ OsuGameEventArray	OsuReplay_parseGameEvents(char *buffer, char *err_buff, jmp_bu
 
 	memset(numberArray, 0, events.length * sizeof(*numberArray));
 	for (int i = 0; eventArray[i] && eventArray[i + 1]; i++) {
-		if (!eventArray[i + 1] && !strlen(eventArray[i]))
+		if (!eventArray[i + 1] && !strlen(eventArray[i])) {
+			events.length--;
 			break;
+		}
 		numberArray[i] = OsuReplay_splitString(eventArray[i], '|');
 		if (OsuReplay_getPointerArraySize((void **)numberArray[i]) != 4) {
 			sprintf(
@@ -428,22 +432,25 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 
 	//Handle uncompression errors
 	if (LZMA_result == SZ_ERROR_DATA) {
-		sprintf(error, "A data error occurred when uncompressing replay data (Byte %lu in compressed data)", (unsigned long)posInCompressedBuffer);
+		sprintf(error, "A data error occurred when uncompressing replay data");
 		longjmp(jump_buffer, true);
 	} else if (LZMA_result == SZ_ERROR_MEM) {
-		sprintf(error, "A memory allocation error occurred when uncompressing replay data (Byte %lu in compressed data)", (unsigned long)posInCompressedBuffer);
+		sprintf(error, "A memory allocation error occurred when uncompressing replay data");
 		longjmp(jump_buffer, true);
 	} else if (LZMA_result == SZ_ERROR_UNSUPPORTED) {
-		sprintf(error, "The compressed replay data are invalid (Byte %lu in compressed data)", (unsigned long)posInCompressedBuffer);
+		sprintf(error, "The compressed replay data has unsupported properties");
 		longjmp(jump_buffer, true);
 	} else if (LZMA_result == SZ_ERROR_INPUT_EOF) {
-		sprintf(error, "Unexpected end of file when uncompressing replay data (Byte %lu in compressed data)", (unsigned long)posInCompressedBuffer);
+		sprintf(error, "Unexpected end of file when uncompressing replay data");
 		longjmp(jump_buffer, true);
 	}
 
 	//Parse uncompressed game events data and lifebar data
 	result.lifeBar = OsuReplay_parseLifeBarEvents(lifeBar, error, jump_buffer);
 	result.gameEvents = OsuReplay_parseGameEvents((char *)uncompressedReplayData.content, error, jump_buffer);
+	for (unsigned i = 0; i < result.gameEvents.length; i++)
+		if (result.gameEvents.content[i].timeToHappen > 0)
+			result.replayLength += result.gameEvents.content[i].timeToHappen;
 
 	free(uncompressedReplayData.content);
 	free(compressedReplayData.content);

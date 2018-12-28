@@ -124,6 +124,7 @@ typedef struct OsuReplay {
 	OsuGameEventArray	gameEvents;
 	unsigned long		timestamp;
 	unsigned long		something;
+	unsigned long		replayLength;
 } OsuReplay;
 
 OsuReplay	OsuReplay_parseReplayFile(char *path);

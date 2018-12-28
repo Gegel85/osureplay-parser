@@ -54,5 +54,6 @@ int	main(int argc, char **args)
 	printf("Max combo: %hu\n", replay.score.maxCombo);
 	printf("Total score: %u\n", replay.score.totalScore);
 	printf("Did the player combo break ?: %s\n", replay.score.noComboBreak ? "No" : "Yes");
+	printf("Total length: %lums (%f seconds)\n", replay.replayLength, replay.replayLength / 1000.f);
 	return EXIT_SUCCESS;
 }
