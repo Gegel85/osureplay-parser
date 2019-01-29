@@ -7,7 +7,6 @@
 #include <limits.h>
 #include <unistd.h>
 #include <ctype.h>
-#include <7zTypes.h>
 #include <common.h>
 #include "decompressor.h"
 #include "osu_replay_parser.h"
