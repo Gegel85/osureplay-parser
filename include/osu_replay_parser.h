@@ -4,8 +4,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define DELNEG(x) (x > 0 ? x : 0)
-
 #ifndef __OSU_GAME_MODE_HEADER_
 #define __OSU_GAME_MODE_HEADER_
 

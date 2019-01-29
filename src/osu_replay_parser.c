@@ -280,6 +280,7 @@ OsuGameEventArray	OsuReplay_parseGameEvents(char *buffer, char *err_buff, jmp_bu
 	OsuGameEventArray	events = {0, NULL};
 	char			**eventArray = OsuReplay_splitString(buffer, ',');
 	char			***numberArray;
+	unsigned long		totalTime = 0;
 
 	if (!eventArray) {
 		sprintf(err_buff, "Memory allocation error");
@@ -347,7 +348,8 @@ OsuGameEventArray	OsuReplay_parseGameEvents(char *buffer, char *err_buff, jmp_bu
 		longjmp(jump_buffer, true);
 	}
 	for (int i = 0; numberArray[i]; i++) {
-		events.content[i].timeToHappen = DELNEG(atol(numberArray[i][0]));
+		totalTime += atol(numberArray[i][0]);
+		events.content[i].timeToHappen = totalTime;
 		events.content[i].cursorPos.x = atof(numberArray[i][1]);
 		events.content[i].cursorPos.y = atof(numberArray[i][2]);
 		events.content[i].keysPressed = atoi(numberArray[i][3]);
@@ -457,9 +459,8 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 	//Parse uncompressed game events data and lifebar data
 	result.lifeBar = OsuReplay_parseLifeBarEvents(lifeBar, error, jump_buffer);
 	result.gameEvents = OsuReplay_parseGameEvents((char *)uncompressedReplayData.content, error, jump_buffer);
-	for (unsigned i = 0; i < result.gameEvents.length; i++)
-		if (result.gameEvents.content[i].timeToHappen > 0)
-			result.replayLength += result.gameEvents.content[i].timeToHappen;
+	if (result.gameEvents.length > 1)
+		result.replayLength = result.gameEvents.content[result.gameEvents.length - 2].timeToHappen;
 
 	free(uncompressedReplayData.content);
 	free(compressedReplayData.content);
