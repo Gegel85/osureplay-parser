@@ -6,8 +6,10 @@
 #include <setjmp.h>
 #include <limits.h>
 #include <unistd.h>
-#include <LzmaLib.h>
 #include <ctype.h>
+#include <7zTypes.h>
+#include <common.h>
+#include "decompressor.h"
 #include "osu_replay_parser.h"
 
 char	*OsuReplay_gameModeToString(unsigned char mode)
@@ -359,14 +361,13 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 {
 	OsuReplay	result;
 	size_t		currentPos = 0;
-	size_t		posInCompressedBuffer = 0;
 	jmp_buf		jump_buffer;
-	static	char	error[PATH_MAX + 1024];
+	static	char	error[PATH_MAX + 1084];
 	char		buffer[PATH_MAX + 1024];
-	int		LZMA_result;
 	OsuString	compressedReplayData = {0, NULL};
 	OsuString	uncompressedReplayData = {0, NULL};
 	char		*lifeBar = NULL;
+	struct DataStream stream;
 
 	//Init the error handler
 	if (setjmp(jump_buffer)) {
@@ -411,39 +412,47 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 	}
 
 	//Uncompress the replay data
-	posInCompressedBuffer = compressedReplayData.length - LZMA_PROPS_SIZE - 8;
-	uncompressedReplayData.length = 0;
-	for (int i = 0; i < 8; i++)
-		uncompressedReplayData.length += (size_t)compressedReplayData.content[LZMA_PROPS_SIZE + i] << (i * 8);
-	uncompressedReplayData.content = malloc(uncompressedReplayData.length);
-	if (!uncompressedReplayData.content) {
-		sprintf(error, "Memory allocation error (%luB)", (unsigned long)uncompressedReplayData.length);
+	stream.outData = NULL;
+	stream.outLen = 0;
+	stream.inData = compressedReplayData.content;
+	stream.inLen = compressedReplayData.length;
+	switch (decompressStreamData(&stream)) {
+	case ELZMA_E_BAD_PARAMS:
+		sprintf(error, "LZMA: Bad parameter sent to an LZMA function");
+		longjmp(jump_buffer, true);
+	case ELZMA_E_ENCODING_PROPERTIES_ERROR:
+		sprintf(error, "LZMA: Could not initialize the encode with configured parameters");
+		longjmp(jump_buffer, true);
+	case ELZMA_E_COMPRESS_ERROR:
+		sprintf(error, "LZMA: An error occured during compression");
+		longjmp(jump_buffer, true);
+	case ELZMA_E_UNSUPPORTED_FORMAT:
+		sprintf(error, "LZMA: Currently unsupported lzma file format was specified");
+		longjmp(jump_buffer, true);
+	case ELZMA_E_INPUT_ERROR:
+		sprintf(error, "LZMA: An error occured when reading input");
+		longjmp(jump_buffer, true);
+	case ELZMA_E_OUTPUT_ERROR:
+		sprintf(error, "LZMA: An error occured when writing output");
+		longjmp(jump_buffer, true);
+	case ELZMA_E_CORRUPT_HEADER:
+		sprintf(error, "LZMA: LZMA header couldn't be parsed");
+		longjmp(jump_buffer, true);
+	case ELZMA_E_DECOMPRESS_ERROR:
+		sprintf(error, "LZMA: An error occured during decompression");
+		longjmp(jump_buffer, true);
+	case ELZMA_E_INSUFFICIENT_INPUT:
+		sprintf(error, "LZMA: The input stream returns EOF before the decompression could complete");
+		longjmp(jump_buffer, true);
+	case ELZMA_E_CRC32_MISMATCH:
+		sprintf(error, "LZMA: Corrupted data");
+		longjmp(jump_buffer, true);
+	case ELZMA_E_SIZE_MISMATCH:
+		sprintf(error, "LZMA: Size read mismatch expected length");
 		longjmp(jump_buffer, true);
 	}
-	memset(uncompressedReplayData.content, 0, uncompressedReplayData.length);
-	LZMA_result = LzmaUncompress(
-		uncompressedReplayData.content,
-		&posInCompressedBuffer,
-		&compressedReplayData.content[LZMA_PROPS_SIZE + 8],
-		&compressedReplayData.length,
-		compressedReplayData.content,
-		LZMA_PROPS_SIZE
-	);
-
-	//Handle uncompression errors
-	if (LZMA_result == SZ_ERROR_DATA) {
-		sprintf(error, "A data error occurred when uncompressing replay data");
-		longjmp(jump_buffer, true);
-	} else if (LZMA_result == SZ_ERROR_MEM) {
-		sprintf(error, "A memory allocation error occurred when uncompressing replay data");
-		longjmp(jump_buffer, true);
-	} else if (LZMA_result == SZ_ERROR_UNSUPPORTED) {
-		sprintf(error, "The compressed replay data has unsupported properties");
-		longjmp(jump_buffer, true);
-	} else if (LZMA_result == SZ_ERROR_INPUT_EOF) {
-		sprintf(error, "Unexpected end of file when uncompressing replay data");
-		longjmp(jump_buffer, true);
-	}
+	uncompressedReplayData.length = stream.outLen;
+	uncompressedReplayData.content = stream.outData;
 
 	//Parse uncompressed game events data and lifebar data
 	result.lifeBar = OsuReplay_parseLifeBarEvents(lifeBar, error, jump_buffer);
