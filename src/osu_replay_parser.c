@@ -458,8 +458,9 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 	//Parse uncompressed game events data and lifebar data
 	result.lifeBar = OsuReplay_parseLifeBarEvents(lifeBar, error, jump_buffer);
 	result.gameEvents = OsuReplay_parseGameEvents((char *)uncompressedReplayData.content, error, jump_buffer);
-	if (result.gameEvents.length > 1)
-		result.replayLength = result.gameEvents.content[result.gameEvents.length - 2].timeToHappen;
+	for (int i = 0; i < result.gameEvents.length; i++)
+		if (result.gameEvents.content[i].timeToHappen > (int)result.replayLength)
+			result.replayLength = result.gameEvents.content[i].timeToHappen;
 
 	free(uncompressedReplayData.content);
 	free(compressedReplayData.content);

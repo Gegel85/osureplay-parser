@@ -89,7 +89,7 @@ typedef struct OsuLifeEvent {
 } OsuLifeEvent;
 
 typedef struct OsuGameEvent {
-	unsigned long	timeToHappen;
+	long		timeToHappen;
 	OsuFloatVector	cursorPos;
 	unsigned int	keysPressed;
 } OsuGameEvent;
