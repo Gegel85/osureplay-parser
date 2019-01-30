@@ -465,6 +465,23 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 	free(uncompressedReplayData.content);
 	free(compressedReplayData.content);
 	free(lifeBar);
+
+	if ((result.mode & MODE_HARD_ROCK) && (result.mode & MODE_EASY)) {
+		sprintf(error, "Invalid modes found: HARD_ROCK and EASY can't be both active.");
+		longjmp(jump_buffer, true);
+	} else if ((result.mode & MODE_PERFECT) && (result.mode & MODE_NO_FAIL)) {
+		sprintf(error, "Invalid modes found: SUDDEN_DEATH and NO_FAIL can't be both active.");
+		longjmp(jump_buffer, true);
+	} else if ((result.mode & MODE_SUDDEN_DEATH) && (result.mode & MODE_NO_FAIL)) {
+		sprintf(error, "Invalid modes found: PERFECT and NO_FAIL can't be both active.");
+		longjmp(jump_buffer, true);
+	} else if ((result.mode & MODE_NIGHTCORE) && (result.mode & MODE_HALF_TIME)) {
+		sprintf(error, "Invalid modes found: NIGHTCORE and HALF_TIME can't be both active.");
+		longjmp(jump_buffer, true);
+	} else if ((result.mode & MODE_DOUBLE_TIME) && (result.mode & MODE_HALF_TIME)) {
+		sprintf(error, "Invalid modes found: DOUBLE_TIME and HALF_TIME can't be both active.");
+		longjmp(jump_buffer, true);
+	}
 	return result;
 }
 
@@ -525,7 +542,6 @@ OsuReplay	OsuReplay_parseReplayFile(char *path)
 
 void	OsuReplay_destroy(OsuReplay *replay)
 {
-
 	free(replay->gameEvents.content);
 	free(replay->lifeBar.content);
 	free(replay->mapHash);
