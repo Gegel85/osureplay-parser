@@ -128,5 +128,6 @@ typedef struct OsuReplay {
 OsuReplay	OsuReplay_parseReplayFile(char *path);
 char		*OsuReplay_gameModeToString(unsigned char mode);
 OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t size);
+void		OsuReplay_destroy(OsuReplay *replay);
 
 #endif

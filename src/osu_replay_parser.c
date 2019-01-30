@@ -522,3 +522,13 @@ OsuReplay	OsuReplay_parseReplayFile(char *path)
 	}
 	return result;
 }
+
+void	OsuReplay_destroy(OsuReplay *replay)
+{
+
+	free(replay->gameEvents.content);
+	free(replay->lifeBar.content);
+	free(replay->mapHash);
+	free(replay->playerName);
+	free(replay->replayHash);
+}
