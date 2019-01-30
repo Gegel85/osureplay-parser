@@ -346,13 +346,14 @@ OsuGameEventArray	OsuReplay_parseGameEvents(char *buffer, char *err_buff, jmp_bu
 		free(numberArray);
 		longjmp(jump_buffer, true);
 	}
-	for (int i = 0; numberArray[i]; i++) {
-		totalTime += atol(numberArray[i][0]);
-		events.content[i].timeToHappen = totalTime;
-		events.content[i].cursorPos.x = atof(numberArray[i][1]);
-		events.content[i].cursorPos.y = atof(numberArray[i][2]);
-		events.content[i].keysPressed = atoi(numberArray[i][3]);
-		free(numberArray[i]);
+	events.length = 0;
+	for (; numberArray[events.length]; events.length++) {
+		totalTime += atol(numberArray[events.length][0]);
+		events.content[events.length].timeToHappen = totalTime;
+		events.content[events.length].cursorPos.x = atof(numberArray[events.length][1]);
+		events.content[events.length].cursorPos.y = atof(numberArray[events.length][2]);
+		events.content[events.length].keysPressed = atoi(numberArray[events.length][3]);
+		free(numberArray[events.length]);
 	}
 	free(numberArray);
 	return events;
@@ -453,8 +454,9 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 		longjmp(jump_buffer, true);
 	}
 	uncompressedReplayData.length = stream.outLen;
-	uncompressedReplayData.content = stream.outData;
+	uncompressedReplayData.content = realloc(stream.outData, stream.outLen + 1);
 
+	uncompressedReplayData.content[uncompressedReplayData.length] = 0;
 	//Parse uncompressed game events data and lifebar data
 	result.lifeBar = OsuReplay_parseLifeBarEvents(lifeBar, error, jump_buffer);
 	result.gameEvents = OsuReplay_parseGameEvents((char *)uncompressedReplayData.content, error, jump_buffer);
