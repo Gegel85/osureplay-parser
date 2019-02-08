@@ -455,12 +455,12 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 	}
 	uncompressedReplayData.length = stream.outLen;
 	uncompressedReplayData.content = realloc(stream.outData, stream.outLen + 1);
-
 	uncompressedReplayData.content[uncompressedReplayData.length] = 0;
+
 	//Parse uncompressed game events data and lifebar data
 	result.lifeBar = OsuReplay_parseLifeBarEvents(lifeBar, error, jump_buffer);
 	result.gameEvents = OsuReplay_parseGameEvents((char *)uncompressedReplayData.content, error, jump_buffer);
-	for (int i = 0; i < result.gameEvents.length; i++)
+	for (unsigned i = 0; i < result.gameEvents.length; i++)
 		if (result.gameEvents.content[i].timeToHappen > (int)result.replayLength)
 			result.replayLength = result.gameEvents.content[i].timeToHappen;
 
