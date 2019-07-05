@@ -207,13 +207,12 @@ OsuLifeEventArray	OsuReplay_parseLifeBarEvents(char *buffer, char *err_buff, jmp
 	}
 
 	events.length = OsuReplay_getPointerArraySize((void **)eventArray);
-	numberArray = malloc(events.length * sizeof(*numberArray));
+	numberArray = calloc(events.length, sizeof(*numberArray));
 	if (!numberArray) {
 		sprintf(err_buff, "Memory allocation error (%luB)", (unsigned long)(events.length * sizeof(*numberArray)));
 		longjmp(jump_buffer, true);
 	}
 
-	memset(numberArray, 0, events.length * sizeof(*numberArray));
 	for (int i = 0; eventArray[i]; i++) {
 		if (!eventArray[i + 1] && !strlen(eventArray[i])) {
 			events.length--;
