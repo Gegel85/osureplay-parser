@@ -5,7 +5,15 @@
 #include <malloc.h>
 #include <setjmp.h>
 #include <limits.h>
+#ifdef _MSC_VER
+#include <io.h>
+#include <windows.h>
+#ifndef PATH_MAX
+#define PATH_MAX MAX_PATH
+#endif
+#else
 #include <unistd.h>
+#endif
 #include <ctype.h>
 #include <common.h>
 #include "decompressor.h"
