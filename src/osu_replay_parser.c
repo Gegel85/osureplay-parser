@@ -366,7 +366,7 @@ OsuGameEventArray	OsuReplay_parseGameEvents(char *buffer, char *err_buff, jmp_bu
 	return events;
 }
 
-OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
+OsuReplay	OsuReplay_parseReplayString(const unsigned char *string, size_t buffSize)
 {
 	OsuReplay	result;
 	size_t		currentPos = 0;
@@ -494,7 +494,7 @@ OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t buffSize)
 	return result;
 }
 
-OsuReplay	OsuReplay_parseReplayFile(char *path)
+OsuReplay	OsuReplay_parseReplayFile(const char *path)
 {
 	size_t		size = 0;
 	struct stat	stats;

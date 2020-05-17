@@ -30,7 +30,7 @@ enum OsuInputs {
 	INPUT_M2	= INPUT_MOUSE2,
 	INPUT_K1	= INPUT_KEY1,
 	INPUT_K2	= INPUT_KEY2,
-} OsuInputs;
+};
 
 enum OsuMode {
 	MODE_NONE		= 0,
@@ -125,9 +125,9 @@ typedef struct OsuReplay {
 	unsigned long		replayLength;
 } OsuReplay;
 
-OsuReplay	OsuReplay_parseReplayFile(char *path);
+OsuReplay	OsuReplay_parseReplayFile(const char *path);
 char		*OsuReplay_gameModeToString(unsigned char mode);
-OsuReplay	OsuReplay_parseReplayString(unsigned char *string, size_t size);
+OsuReplay	OsuReplay_parseReplayString(const unsigned char *string, size_t size);
 void		OsuReplay_destroy(OsuReplay *replay);
 
 #endif
