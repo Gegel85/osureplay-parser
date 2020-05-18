@@ -475,20 +475,20 @@ OsuReplay	OsuReplay_parseReplayString(const unsigned char *string, size_t buffSi
 	free(compressedReplayData.content);
 	free(lifeBar);
 
-	if ((result.mode & MODE_HARD_ROCK) && (result.mode & MODE_EASY)) {
-		sprintf(error, "Invalid modes found: HARD_ROCK and EASY can't be both active.");
+	if ((result.mods & MODE_HARD_ROCK) && (result.mods & MODE_EASY)) {
+		sprintf(error, "Invalid mods found: HARD_ROCK and EASY can't be both active.");
 		longjmp(jump_buffer, true);
-	} else if ((result.mode & MODE_PERFECT) && (result.mode & MODE_NO_FAIL)) {
-		sprintf(error, "Invalid modes found: SUDDEN_DEATH and NO_FAIL can't be both active.");
+	} else if ((result.mods & MODE_PERFECT) && (result.mods & MODE_NO_FAIL)) {
+		sprintf(error, "Invalid mods found: SUDDEN_DEATH and NO_FAIL can't be both active.");
 		longjmp(jump_buffer, true);
-	} else if ((result.mode & MODE_SUDDEN_DEATH) && (result.mode & MODE_NO_FAIL)) {
-		sprintf(error, "Invalid modes found: PERFECT and NO_FAIL can't be both active.");
+	} else if ((result.mods & MODE_SUDDEN_DEATH) && (result.mods & MODE_NO_FAIL)) {
+		sprintf(error, "Invalid mods found: PERFECT and NO_FAIL can't be both active.");
 		longjmp(jump_buffer, true);
-	} else if ((result.mode & MODE_NIGHTCORE) && (result.mode & MODE_HALF_TIME)) {
-		sprintf(error, "Invalid modes found: NIGHTCORE and HALF_TIME can't be both active.");
+	} else if ((result.mods & MODE_NIGHTCORE) && (result.mods & MODE_HALF_TIME)) {
+		sprintf(error, "Invalid mods found: NIGHTCORE and HALF_TIME can't be both active.");
 		longjmp(jump_buffer, true);
-	} else if ((result.mode & MODE_DOUBLE_TIME) && (result.mode & MODE_HALF_TIME)) {
-		sprintf(error, "Invalid modes found: DOUBLE_TIME and HALF_TIME can't be both active.");
+	} else if ((result.mods & MODE_DOUBLE_TIME) && (result.mods & MODE_HALF_TIME)) {
+		sprintf(error, "Invalid mods found: DOUBLE_TIME and HALF_TIME can't be both active.");
 		longjmp(jump_buffer, true);
 	}
 	return result;

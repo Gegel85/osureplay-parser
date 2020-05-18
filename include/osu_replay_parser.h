@@ -111,7 +111,7 @@ typedef struct OsuGameEventArray {
 
 typedef struct OsuReplay {
 	char			*error;
-	unsigned char		mode;
+	enum OsuGameMode	mode;
 	unsigned int		version;
 	char			*mapHash;
 	char			*playerName;
